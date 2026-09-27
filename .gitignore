@@ -46,3 +46,18 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Credentials and Environment
+*.env
+.env*
+google-services.json
+GoogleService-Info.plist
+*.jks
+*.keystore
+key.properties
+
+# UAT and Documents
+UAT_*.csv
+UAT_*.xlsx
+*.xlsx
+*.csv
