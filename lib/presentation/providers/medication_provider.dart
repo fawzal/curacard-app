@@ -26,7 +26,32 @@ class MedicationNotifier
     state = const AsyncValue.loading();
     try {
       final list = await _repository.fetchMedications();
-      state = AsyncValue.data(list);
+      final todayLogs = await _repository.fetchTodayIntakeLogs();
+
+      // Merge status from intake_logs into medications list
+      final mergedList = list.map((med) {
+        final log = todayLogs.where((l) => l.medicationId == med.id).firstOrNull;
+        if (log != null) {
+          final IntakeStatus intakeStatus;
+          switch (log.status) {
+            case 'taken':
+              intakeStatus = IntakeStatus.taken;
+              break;
+            case 'skipped':
+              intakeStatus = IntakeStatus.skipped;
+              break;
+            default:
+              intakeStatus = IntakeStatus.pending;
+          }
+          return med.copyWith(
+            status: intakeStatus,
+            takenAt: log.takenAt,
+          );
+        }
+        return med;
+      }).toList();
+
+      state = AsyncValue.data(mergedList);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }

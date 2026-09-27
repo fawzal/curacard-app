@@ -130,7 +130,8 @@ create table if not exists public.intake_logs (
   status           text        not null default 'pending'
                                check (status in ('taken', 'pending', 'skipped')),
   taken_at         timestamptz,
-  created_at       timestamptz not null default now()
+  created_at       timestamptz not null default now(),
+  unique(medication_id, scheduled_date)
 );
 
 alter table public.intake_logs enable row level security;
