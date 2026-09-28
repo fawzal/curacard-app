@@ -89,8 +89,9 @@ create table if not exists public.medications (
                               references public.profiles(id) on delete cascade,
   name            text        not null,
   dosage          text        not null,
-  scheduled_time  text        not null,
+  scheduled_times text[]      not null default '{}',
   icon_name       text        not null default 'pill',
+  use_alarm       boolean     not null default false,
   created_at      timestamptz not null default now()
 );
 
@@ -127,11 +128,12 @@ create table if not exists public.intake_logs (
   medication_id    uuid        not null
                                references public.medications(id) on delete cascade,
   scheduled_date   date        not null,
+  scheduled_time   text        not null,
   status           text        not null default 'pending'
                                check (status in ('taken', 'pending', 'skipped')),
   taken_at         timestamptz,
   created_at       timestamptz not null default now(),
-  unique(medication_id, scheduled_date)
+  unique(medication_id, scheduled_date, scheduled_time)
 );
 
 alter table public.intake_logs enable row level security;
@@ -157,12 +159,12 @@ create policy "intake_logs_delete_own"
   on public.intake_logs for delete
   using ( user_id = auth.uid() );
 
--- Unique constraint to allow upsert by (medication_id, scheduled_date)
+-- Unique constraint to allow upsert by (medication_id, scheduled_date, scheduled_time)
 alter table public.intake_logs
-  drop constraint if exists intake_logs_medication_date_unique;
+  drop constraint if exists intake_logs_medication_date_time_unique;
 alter table public.intake_logs
-  add constraint intake_logs_medication_date_unique
-  unique (medication_id, scheduled_date);
+  add constraint intake_logs_medication_date_time_unique
+  unique (medication_id, scheduled_date, scheduled_time);
 
 -- ─────────────────────────────────────────────
 -- 5. Trigger: auto-create empty profile on sign-up

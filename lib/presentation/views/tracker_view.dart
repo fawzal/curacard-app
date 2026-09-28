@@ -180,12 +180,64 @@ class _TrackerViewState extends ConsumerState<TrackerView> {
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: filteredList.length,
                   itemBuilder: (context, index) {
-                    final med = filteredList[index];
-                    return MedicationCard(
-                      medication: med,
-                      onToggleStatus: () {
-                        ref.read(medicationNotifierProvider.notifier).toggleStatus(med.id);
+                    final item = filteredList[index];
+                    return Dismissible(
+                      key: Key('${item.medication.id}_${item.scheduledTime}'),
+                      direction: DismissDirection.horizontal,
+                      background: Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.error,
+                          borderRadius: BorderRadius.circular(16.0),
+                        ),
+                        margin: const EdgeInsets.only(bottom: 12),
+                        alignment: Alignment.centerLeft,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: const Icon(Icons.delete_outline, color: Colors.white),
+                      ),
+                      secondaryBackground: Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.error,
+                          borderRadius: BorderRadius.circular(16.0),
+                        ),
+                        margin: const EdgeInsets.only(bottom: 12),
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: const Icon(Icons.delete_outline, color: Colors.white),
+                      ),
+                      confirmDismiss: (direction) async {
+                        return await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Hapus Obat?'),
+                            content: Text('Apakah Anda yakin ingin menghapus ${item.medication.name}?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: const Text('Batal'),
+                              ),
+                              FilledButton(
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: Theme.of(context).colorScheme.error,
+                                ),
+                                onPressed: () => Navigator.pop(context, true),
+                                child: const Text('Hapus'),
+                              ),
+                            ],
+                          ),
+                        ) ?? false;
                       },
+                      onDismissed: (_) {
+                        ref.read(medicationNotifierProvider.notifier).deleteMedication(item.medication.id);
+                      },
+                      child: MedicationCard(
+                        item: item,
+                        onToggleStatus: () {
+                          ref.read(medicationNotifierProvider.notifier).toggleStatus(
+                                item.medication.id,
+                                item.scheduledTime,
+                              );
+                        },
+                      ),
                     );
                   },
                 );

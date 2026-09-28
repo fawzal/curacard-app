@@ -1,8 +1,22 @@
-# Changelog & Update History
+﻿# Changelog & Update History
 
 Semua perubahan dan pembaruan penting pada project **CuraCard** akan dicatat dalam file ini.
 
 ## [1.0.0] - 2026-09-24
+## [1.1.0] - 2026-09-28
+**Status: Fitur Notifikasi & UI Tracker Baru**
+
+### Ditambahkan (Added)
+- **Local Push Notification & Alarm Berdering**: Implementasi lutter_local_notifications untuk memunculkan notifikasi jadwal minum obat. Jika opsi alarm diaktifkan, notifikasi akan berdering intens (FLAG_INSISTENT) dengan ullScreenIntent.
+- **Swipe-to-Delete**: Menambahkan fitur Dismissible pada daftar obat agar pengguna bisa menghapus obat beserta alarmnya cukup dengan menggeser kartu ke kiri atau kanan.
+- **Dynamic Time Picker**: Menambahkan antarmuka showTimePicker bawaan Android untuk memilih jam minum obat yang presisi (mendukung 1x, 2x, atau 3x sehari).
+- **Aturan Agent AI (AGENTS.md)**: Penambahan aturan kerja tim AI (Coder, Reviewer, Tester) untuk mencegah bug dan kesalahan logika pada proyek.
+
+### Diubah / Disempurnakan (Changed)
+- **Struktur Database (use_alarm)**: Menambahkan kolom use_alarm pada tabel medications di Supabase untuk menyimpan preferensi alarm per-obat.
+- **Keamanan ID Alarm**: ID notifikasi dirombak menggunakan fungsi *deterministic hash* kustom agar dapat membatalkan alarm dengan tepat sasaran meskipun aplikasi sempat ditutup.
+- **Form Tambah Obat**: Komponen UI *Dropdown* frekuensi minum obat diganti menjadi SegmentedButton modern yang lebih responsif.
+
 **Status: Rilis Awal (Initial Release)**
 
 ### Ditambahkan (Added)

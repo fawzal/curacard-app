@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../core/utils/adherence_calculator.dart';
-import '../../data/models/medication_model.dart';
+import '../../data/models/intake_item_model.dart';
 
 class MedicationCard extends StatelessWidget {
-  final MedicationModel medication;
+  final IntakeItemModel item;
   final VoidCallback onToggleStatus;
 
   const MedicationCard({
     super.key,
-    required this.medication,
+    required this.item,
     required this.onToggleStatus,
   });
 
@@ -26,7 +26,8 @@ class MedicationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isTaken = medication.status == IntakeStatus.taken;
+    final medication = item.medication;
+    final isTaken = item.status == IntakeStatus.taken;
 
     return Card.outlined(
       margin: const EdgeInsets.only(bottom: 12),
@@ -82,7 +83,7 @@ class MedicationCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '${medication.scheduledTime}  •  ${medication.dosage}',
+                        '${item.scheduledTime}  •  ${medication.dosage}',
                         style: Theme.of(context).textTheme.labelMedium?.copyWith(
                               color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),

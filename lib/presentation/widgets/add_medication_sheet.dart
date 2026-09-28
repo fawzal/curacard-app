@@ -16,18 +16,14 @@ class _AddMedicationSheetState extends ConsumerState<AddMedicationSheet> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _dosageController = TextEditingController();
-  String _selectedTime = '08:00 AM';
+  
+  int _frequency = 1;
+  final List<String> _selectedTimes = ['08:00 AM', '01:00 PM', '07:00 PM'];
   String _selectedIcon = 'pill';
+  bool _useAlarm = false;
   bool _isLoading = false;
 
-  final List<String> _times = [
-    '07:00 AM',
-    '08:00 AM',
-    '12:00 PM',
-    '06:00 PM',
-    '08:00 PM',
-    '10:00 PM',
-  ];
+
 
   final List<Map<String, String>> _icons = [
     {'name': 'pill', 'label': 'Pil'},
@@ -49,13 +45,15 @@ class _AddMedicationSheetState extends ConsumerState<AddMedicationSheet> {
 
     try {
       final userId = SupabaseConfig.client.auth.currentUser!.id;
+      final timesToSave = _selectedTimes.sublist(0, _frequency);
 
       await SupabaseConfig.client.from('medications').insert({
         'user_id': userId,
         'name': _nameController.text.trim(),
         'dosage': _dosageController.text.trim(),
-        'scheduled_time': _selectedTime,
+        'scheduled_times': timesToSave,
         'icon_name': _selectedIcon,
+        'use_alarm': _useAlarm,
       });
 
       // Refresh medication list from Supabase
@@ -90,6 +88,39 @@ class _AddMedicationSheetState extends ConsumerState<AddMedicationSheet> {
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _pickTime(BuildContext context, int index) async {
+    final currentParts = _selectedTimes[index].split(' ');
+    final timeParts = currentParts[0].split(':');
+    int hour = int.parse(timeParts[0]);
+    int minute = int.parse(timeParts[1]);
+    if (currentParts.length > 1) {
+      if (currentParts[1] == 'PM' && hour != 12) hour += 12;
+      if (currentParts[1] == 'AM' && hour == 12) hour = 0;
+    }
+
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: hour, minute: minute),
+    );
+
+    if (picked != null) {
+      // Format to "hh:mm AM/PM"
+      int h = picked.hour;
+      String period = 'AM';
+      if (h >= 12) {
+        period = 'PM';
+        if (h > 12) h -= 12;
+      }
+      if (h == 0) h = 12;
+      
+      final String formattedTime = '${h.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')} $period';
+      
+      setState(() {
+        _selectedTimes[index] = formattedTime;
+      });
     }
   }
 
@@ -150,30 +181,68 @@ class _AddMedicationSheetState extends ConsumerState<AddMedicationSheet> {
                     (v == null || v.isEmpty) ? 'Dosis wajib diisi' : null,
                 enabled: !_isLoading,
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
 
-              LayoutBuilder(
-                builder: (context, constraints) => DropdownMenu<String>(
-                  width: constraints.maxWidth,
-                  initialSelection: _selectedTime,
-                  menuStyle: MenuStyle(
-                    backgroundColor: WidgetStateProperty.all(Colors.white),
-                    shape: WidgetStateProperty.all(
-                      RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    ),
-                  ),
-                  leadingIcon: const Icon(Icons.access_time_rounded, color: AppTheme.textSecondary, size: 20),
-                  hintText: 'Waktu Minum',
-                  enabled: !_isLoading,
-                  dropdownMenuEntries: _times.map((time) {
-                    return DropdownMenuEntry<String>(value: time, label: time);
-                  }).toList(),
-                  onSelected: (val) {
-                    if (val != null) setState(() => _selectedTime = val);
+              const Text(
+                'Frekuensi Minum Obat',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textMain,
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              SizedBox(
+                width: double.infinity,
+                child: SegmentedButton<int>(
+                  segments: const [
+                    ButtonSegment(value: 1, label: Text('1x Sehari')),
+                    ButtonSegment(value: 2, label: Text('2x Sehari')),
+                    ButtonSegment(value: 3, label: Text('3x Sehari')),
+                  ],
+                  selected: {_frequency},
+                  onSelectionChanged: (newSelection) {
+                    if (!_isLoading) {
+                      setState(() => _frequency = newSelection.first);
+                    }
                   },
+                  showSelectedIcon: false,
                 ),
               ),
               const SizedBox(height: 16),
+
+              // Time Pickers based on frequency
+              ...List.generate(_frequency, (index) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: InkWell(
+                    onTap: _isLoading ? null : () => _pickTime(context, index),
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black12),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.access_time_rounded, color: AppTheme.textSecondary, size: 20),
+                          const SizedBox(width: 12),
+                          Text(
+                            _selectedTimes[index],
+                            style: const TextStyle(fontSize: 16, color: AppTheme.textMain),
+                          ),
+                          const Spacer(),
+                          const Icon(Icons.arrow_drop_down_rounded, color: AppTheme.textSecondary),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
+              const SizedBox(height: 4),
 
               const Text(
                 'Ikon Obat',
@@ -200,7 +269,7 @@ class _AddMedicationSheetState extends ConsumerState<AddMedicationSheet> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? AppTheme.primaryCoral.withOpacity(0.12)
+                                ? AppTheme.primaryCoral.withAlpha(30)
                                 : AppTheme.canvasBackground,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
@@ -225,6 +294,58 @@ class _AddMedicationSheetState extends ConsumerState<AddMedicationSheet> {
                     ),
                   );
                 }).toList(),
+              ),
+              const SizedBox(height: 16),
+
+              // Switch for Alarm
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppTheme.canvasBackground,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.black12),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Gunakan Alarm Berdering',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textMain,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Jika dinonaktifkan, Anda hanya akan menerima notifikasi pesan standar tanpa nada dering panjang.',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppTheme.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Switch(
+                      value: _useAlarm,
+                      activeTrackColor: AppTheme.primaryCoral.withAlpha(100),
+                      activeThumbColor: AppTheme.primaryCoral,
+                      onChanged: _isLoading
+                          ? null
+                          : (val) {
+                              setState(() {
+                                _useAlarm = val;
+                              });
+                            },
+                    ),
+                  ],
+                ),
               ),
 
               const SizedBox(height: 24),

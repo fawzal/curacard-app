@@ -49,8 +49,9 @@ class MedicationRepository {
         'user_id': uid,
         'name': med.name,
         'dosage': med.dosage,
-        'scheduled_time': med.scheduledTime,
+        'scheduled_times': med.scheduledTimes,
         'icon_name': med.iconName,
+        'use_alarm': med.useAlarm,
       }).select().single();
 
       return MedicationModel.fromJson(response);
@@ -93,6 +94,7 @@ class MedicationRepository {
   // ─────────────────────────────────────────────
   Future<IntakeLogModel> logIntake({
     required String medicationId,
+    required String scheduledTime,
     required String status,
   }) async {
     final uid = client.auth.currentUser!.id;
@@ -101,6 +103,7 @@ class MedicationRepository {
         'user_id': uid,
         'medication_id': medicationId,
         'scheduled_date': _today,
+        'scheduled_time': scheduledTime,
         'status': status,
         'taken_at': status == 'taken' ? DateTime.now().toIso8601String() : null,
       };
@@ -109,7 +112,7 @@ class MedicationRepository {
           .from('intake_logs')
           .upsert(
             payload,
-            onConflict: 'medication_id,scheduled_date',
+            onConflict: 'medication_id,scheduled_date,scheduled_time',
           )
           .select()
           .single();
