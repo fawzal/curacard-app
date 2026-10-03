@@ -83,15 +83,28 @@ class NotificationService {
       android: androidPlatformChannelSpecifics,
     );
 
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      id: id,
-      title: 'Waktunya Minum Obat!',
-      body: '$medicationName ($dosage) dijadwalkan pada $scheduledTime.',
-      scheduledDate: scheduledDate,
-      notificationDetails: platformChannelSpecifics,
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-      matchDateTimeComponents: DateTimeComponents.time, // Berulang setiap hari pada jam tersebut
-    );
+    try {
+      await flutterLocalNotificationsPlugin.zonedSchedule(
+        id: id,
+        title: 'Waktunya Minum Obat!',
+        body: '$medicationName ($dosage) dijadwalkan pada $scheduledTime.',
+        scheduledDate: scheduledDate,
+        notificationDetails: platformChannelSpecifics,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        matchDateTimeComponents: DateTimeComponents.time,
+      );
+    } catch (e) {
+      debugPrint('Failed exact alarm, falling back to inexact: $e');
+      await flutterLocalNotificationsPlugin.zonedSchedule(
+        id: id,
+        title: 'Waktunya Minum Obat!',
+        body: '$medicationName ($dosage) dijadwalkan pada $scheduledTime.',
+        scheduledDate: scheduledDate,
+        notificationDetails: platformChannelSpecifics,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        matchDateTimeComponents: DateTimeComponents.time,
+      );
+    }
   }
 
   /// Membatalkan alarm berdasarkan ID
