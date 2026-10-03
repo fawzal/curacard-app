@@ -89,7 +89,7 @@ class NotificationService {
       body: '$medicationName ($dosage) dijadwalkan pada $scheduledTime.',
       scheduledDate: scheduledDate,
       notificationDetails: platformChannelSpecifics,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time, // Berulang setiap hari pada jam tersebut
     );
   }
