@@ -7,3 +7,10 @@ Setiap kali pengguna meminta Anda untuk membuat atau mengubah kode, Anda WAJIB m
 3. **Tester (Subagent)**: Bersamaan dengan itu, panggil subagent lain dengan peran Tester untuk memastikan perubahan tersebut aman, tidak merusak fitur lain, dan logikanya berjalan sempurna.
 
 **ATURAN MUTLAK**: Jangan pernah memberikan hasil akhir atau lapor selesai ke pengguna SEBELUM kedua subagent tersebut melaporkan bahwa kodenya sudah 100% sempurna tanpa cela. Jika mereka menemukan typo atau error, perbaiki dulu kodenya!
+
+
+## Aturan Manajemen Git (Branching)
+
+1. **Dilarang Keras Coding di Master/Main**: Setiap kali ada permintaan untuk fitur baru, modul baru, atau update fitur, Anda **WAJIB** membuat *branch* baru terlebih dahulu sebelum menulis kode.
+2. **Penamaan Branch**: Nama *branch* harus relevan dengan modul atau fitur yang sedang dikerjakan (contoh: eat/user-profile, ix/login-bug, update/notification-ui).
+3. **Proses**: Pindah ke *branch* baru -> Tulis kode -> Lakukan Review & Test (Protokol 3-Agent) -> Commit & Push ke *branch* tersebut. Jangan gabungkan (merge) ke master/main kecuali diminta secara eksplisit oleh pengguna.
