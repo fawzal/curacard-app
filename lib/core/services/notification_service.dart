@@ -69,12 +69,14 @@ class NotificationService {
 
     // Konfigurasi Notifikasi Android
     AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
-      useAlarm ? 'alarm_channel_id' : 'reminder_channel_id',
+      useAlarm ? 'alarm_channel_id_v2' : 'reminder_channel_id_v2',
       useAlarm ? 'Alarm Obat' : 'Pengingat Obat',
       channelDescription: 'Notifikasi untuk jadwal minum obat',
       importance: Importance.max,
       priority: Priority.high,
       fullScreenIntent: useAlarm,
+      audioAttributesUsage: useAlarm ? AudioAttributesUsage.alarm : AudioAttributesUsage.notification,
+      playSound: true,
       // insistent = true membuat notifikasi berdering terus menerus layaknya alarm
       additionalFlags: useAlarm ? Int32List.fromList([4]) : null, // FLAG_INSISTENT
     );
