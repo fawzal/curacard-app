@@ -1,4 +1,3 @@
-import '../../core/utils/adherence_calculator.dart';
 
 class MedicationModel {
   final String id;

@@ -110,7 +110,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   width: 72,
                   height: 72,
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryCoral.withOpacity(0.12),
+                    color: AppTheme.primaryCoral.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(

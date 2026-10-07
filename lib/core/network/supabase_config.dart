@@ -11,7 +11,7 @@ class SupabaseConfig {
   static Future<void> initialize() async {
     await Supabase.initialize(
       url: supabaseUrl,
-      anonKey: publishableKey, // 'anonKey' is the current valid param name in supabase_flutter
+      publishableKey: publishableKey,
     );
     debugPrint('[SupabaseConfig] Initialized successfully.');
   }

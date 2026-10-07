@@ -115,7 +115,7 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 isExpanded: true,
-                value: _selectedRelation,
+                initialValue: _selectedRelation,
                 decoration: const InputDecoration(
                   prefixIcon: Icon(Icons.badge_outlined, color: AppTheme.textSecondary, size: 20),
                 ),
