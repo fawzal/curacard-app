@@ -113,26 +113,20 @@ class _AddContactDialogState extends ConsumerState<AddContactDialog> {
                 enabled: !_isLoading,
               ),
               const SizedBox(height: 12),
-              LayoutBuilder(
-                builder: (context, constraints) => DropdownMenu<String>(
-                  width: constraints.maxWidth,
-                  initialSelection: _selectedRelation,
-                  menuStyle: MenuStyle(
-                    backgroundColor: WidgetStateProperty.all(Colors.white),
-                    shape: WidgetStateProperty.all(
-                      RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    ),
-                  ),
-                  leadingIcon: const Icon(Icons.badge_outlined, color: AppTheme.textSecondary, size: 20),
-                  hintText: 'Hubungan / Peran',
-                  enabled: !_isLoading,
-                  dropdownMenuEntries: _relations.map((r) {
-                    return DropdownMenuEntry<String>(value: r, label: r);
-                  }).toList(),
-                  onSelected: (val) {
-                    if (val != null) setState(() => _selectedRelation = val);
-                  },
+              DropdownButtonFormField<String>(
+                isExpanded: true,
+                value: _selectedRelation,
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.badge_outlined, color: AppTheme.textSecondary, size: 20),
                 ),
+                items: _relations.map((r) {
+                  return DropdownMenuItem<String>(value: r, child: Text(r));
+                }).toList(),
+                onChanged: _isLoading
+                    ? null
+                    : (val) {
+                        if (val != null) setState(() => _selectedRelation = val);
+                      },
               ),
               const SizedBox(height: 12),
               TextFormField(
