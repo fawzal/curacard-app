@@ -1,28 +1,28 @@
 appId: com.curacard.curacard
 ---
 # Flow 1: Pembukaan Aplikasi (App Launch & Splash / Onboarding)
-# Memverifikasi aplikasi berhasil dibuka, splash screen & onboarding tampil dengan benar,
+# Memverifikasi aplikasi berhasil dibuka, splash & onboarding tampil dengan benar,
 # serta dapat bernavigasi ke layar autentikasi (Auth Screen).
 
 - launchApp:
     clearState: true
 
-# Tunggu sejenak hingga splash screen / inisialisasi selesai
+# Tunggu sejenak hingga halaman onboarding siap
 - extendedWaitUntil:
-    visible: "CuraCard"
+    visible: "Lewati"
+    timeout: 15000
+
+# Ambil bukti screenshot pada tahap pembukaan aplikasi / onboarding
+- takeScreenshot: screenshots/01_app_launch_onboarding
+
+# Lewati onboarding menuju halaman login/daftar
+- tapOn: "Lewati"
+
+# Tunggu dan verifikasi elemen penting di Auth Screen
+- extendedWaitUntil:
+    visible: "Selamat Datang di CuraCard"
     timeout: 10000
 
-# Ambil bukti screenshot pada tahap pembukaan aplikasi
-- takeScreenshot: screenshots/01_app_launch_splash
-
-# Jika layar Onboarding muncul, lewati onboarding menuju halaman login/daftar
-- runFlow:
-    when:
-      visible: "Lewati"
-    commands:
-      - tapOn: "Lewati"
-
-# Verifikasi elemen penting di Auth Screen
 - assertVisible: "Selamat Datang di CuraCard"
 - assertVisible: "Masuk"
 - assertVisible: "Daftar"

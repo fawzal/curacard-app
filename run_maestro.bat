@@ -31,7 +31,7 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-maestro --version
+call maestro --version
 echo.
 
 rem Check adb devices
@@ -42,10 +42,10 @@ echo.
 set TARGET_FLOW=%~1
 if "%TARGET_FLOW%"=="" (
     echo Menjalankan semua 4 flow Maestro di folder maestro/...
-    maestro test maestro/
+    call maestro test maestro/
 ) else (
     echo Menjalankan flow: %TARGET_FLOW%
-    maestro test %TARGET_FLOW%
+    call maestro test %TARGET_FLOW%
 )
 
 echo.

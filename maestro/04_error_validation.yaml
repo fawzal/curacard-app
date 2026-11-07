@@ -2,56 +2,65 @@ appId: com.curacard.curacard
 ---
 # Flow 4: Validasi Kesalahan (Error Validation & Edge Cases)
 # Menguji penanganan kesalahan input form pada Auth Screen:
-# 1. Validasi format email tidak valid
-# 2. Validasi panjang kata sandi kurang dari 6 karakter
-# 3. Validasi field nama kosong pada form registrasi
+# 1. Validasi field nama kosong pada form registrasi
+# 2. Validasi form login kosong
+# 3. Validasi format email tidak valid
+# 4. Validasi panjang kata sandi kurang dari 6 karakter
 
 - launchApp:
     clearState: true
 
-# Lewati onboarding jika muncul
-- runFlow:
-    when:
-      visible: "Lewati"
-    commands:
-      - tapOn: "Lewati"
+# Tunggu dan lewati onboarding
+- extendedWaitUntil:
+    visible: "Lewati"
+    timeout: 15000
+
+- tapOn: "Lewati"
 
 # Pastikan berada di form autentikasi
+- extendedWaitUntil:
+    visible: "Selamat Datang di CuraCard"
+    timeout: 10000
+
+# 1. Pindah ke Tab Registrasi (Daftar) saat posisi layar di atas
+- tapOn: "Daftar"
+- assertVisible: "Buat Akun CuraCard"
+
+# 2. Coba buat akun tanpa mengisi Nama Lengkap
+- tapOn: "Buat Akun"
+- assertVisible: "Nama lengkap wajib diisi"
+- takeScreenshot: screenshots/04_err_register_nama_kosong
+
+# 3. Kembali ke Tab Masuk
+- tapOn: "Masuk"
 - assertVisible: "Selamat Datang di CuraCard"
 
-# 1. Coba submit login langsung saat form kosong
+# 4. Coba submit login langsung saat form kosong
 - tapOn:
     text: "Masuk"
     index: 1
 - assertVisible: "Email tidak valid"
 - takeScreenshot: screenshots/04_err_email_kosong
 
-# 2. Masukkan format email salah (tanpa @)
-- tapOn: "Alamat Email"
+# 5. Fokus ke field email (yang sedang menampilkan pesan validasi) lalu isi format email salah (tanpa @)
+- tapOn: "Email tidak valid"
 - inputText: "invalid_email_format"
+- hideKeyboard
 - tapOn:
     text: "Masuk"
     index: 1
 - assertVisible: "Email tidak valid"
 - takeScreenshot: screenshots/04_err_email_format_salah
 
-# 3. Masukkan email valid, namun kata sandi kurang dari 6 karakter
-- tapOn: "Alamat Email"
+# 6. Masukkan email valid, namun kata sandi kurang dari 6 karakter
+- tapOn: "invalid_email_format"
 - eraseText
 - inputText: "user@curacard.com"
-- tapOn: "Kata Sandi"
+- tapOn: "Minimal 6 karakter"
 - inputText: "123"
+- hideKeyboard
 - tapOn:
     text: "Masuk"
     index: 1
 - assertVisible: "Minimal 6 karakter"
 - takeScreenshot: screenshots/04_err_password_pendek
-
-# 4. Pindah ke Tab Registrasi (Daftar)
-- tapOn: "Daftar"
-- assertVisible: "Buat Akun CuraCard"
-
-# 5. Coba buat akun tanpa mengisi Nama Lengkap
-- tapOn: "Buat Akun"
-- assertVisible: "Nama lengkap wajib diisi"
-- takeScreenshot: screenshots/04_err_register_nama_kosong
