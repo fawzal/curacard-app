@@ -1,0 +1,51 @@
+appId: com.curacard.curacard
+---
+# Flow 2: Navigasi Antar Halaman & Menu Utama
+# Memverifikasi perpindahan antar menu (ID Medis, Pelacak Obat, Kontak Darurat)
+# berjalan lancar dan setiap halaman menampilkan elemen penting yang sesuai.
+
+- launchApp
+
+# Jika aplikasi masih di layar Onboarding, lewati
+- runFlow:
+    when:
+      visible: "Lewati"
+    commands:
+      - tapOn: "Lewati"
+
+# Jika berada di AuthScreen, lakukan login testing
+- runFlow:
+    when:
+      visible: "Selamat Datang di CuraCard"
+    commands:
+      - tapOn: "Alamat Email"
+      - inputText: "tester@curacard.com"
+      - tapOn: "Kata Sandi"
+      - inputText: "password123"
+      - tapOn:
+          text: "Masuk"
+          index: 1
+      - extendedWaitUntil:
+          visible: "Emergency Health Pass"
+          timeout: 10000
+
+# 1. Verifikasi Halaman 1: ID Medis (Pass ID)
+- assertVisible: "Emergency Health Pass"
+- takeScreenshot: screenshots/02_nav_id_medis
+
+# 2. Navigasi ke Halaman 2: Pelacak Obat (Tracker)
+- tapOn: "Pelacak"
+- assertVisible: "Pelacak Obat"
+- assertVisible: "Catat kepatuhan minum obat harian"
+- assertVisible: "Tambah"
+- takeScreenshot: screenshots/02_nav_pelacak_obat
+
+# 3. Navigasi ke Halaman 3: Kontak Darurat
+- tapOn: "Kontak"
+- assertVisible: "Kontak Darurat"
+- takeScreenshot: screenshots/02_nav_kontak_darurat
+
+# 4. Navigasi Kembali ke Halaman 1: ID Medis
+- tapOn: "ID Medis"
+- assertVisible: "Emergency Health Pass"
+- takeScreenshot: screenshots/02_nav_kembali_id_medis

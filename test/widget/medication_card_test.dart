@@ -54,7 +54,7 @@ void main() {
       expect(find.text('Minum'), findsOneWidget);
     });
 
-    testWidgets('renders taken medication with Diminum pill badge', (tester) async {
+    testWidgets('renders taken medication with Selesai pill badge', (tester) async {
       await tester.pumpWidget(buildTestableWidget(
         MedicationCard(
           item: takenItem,
@@ -63,7 +63,7 @@ void main() {
       ));
 
       expect(find.text('Salbutamol Inhaler'), findsOneWidget);
-      expect(find.text('Diminum'), findsOneWidget);
+      expect(find.text('Selesai'), findsOneWidget);
     });
 
     testWidgets('triggers onToggleStatus when status pill button is tapped', (tester) async {

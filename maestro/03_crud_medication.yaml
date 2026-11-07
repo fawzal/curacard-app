@@ -1,0 +1,43 @@
+appId: com.curacard.curacard
+---
+# Flow 3: Alur Transaksi / CRUD (Tambah Jadwal Resep Obat)
+# Menguji operasi Create pada fitur Pelacak Obat:
+# Mengisi form resep baru, menyimpan data ke Supabase, dan memverifikasi item muncul.
+
+- launchApp
+
+# Pastikan berada di layar Pelacak
+- tapOn: "Pelacak"
+- assertVisible: "Pelacak Obat"
+
+# Tekan tombol Tambah untuk membuka Modal Sheet
+- tapOn: "Tambah"
+- assertVisible: "Tambah Jadwal Obat"
+- takeScreenshot: screenshots/03_crud_open_sheet
+
+# Isi data Nama Obat
+- tapOn: "Nama Obat (mis. Parasetamol)"
+- inputText: "Parasetamol 500mg"
+
+# Isi data Dosis
+- tapOn: "Dosis (mis. 500 mg - 1 Tablet)"
+- inputText: "1 Tablet sesudah makan"
+
+# Pilih frekuensi 1x Sehari
+- tapOn: "1x Sehari"
+
+# Ambil screenshot form yang sudah terisi
+- takeScreenshot: screenshots/03_crud_form_filled
+
+# Tekan tombol Simpan Resep
+- tapOn: "Simpan Resep"
+
+# Assert hasil: Verifikasi obat baru telah terdaftar pada daftar obat
+- extendedWaitUntil:
+    visible: "Parasetamol 500mg"
+    timeout: 10000
+- assertVisible: "Parasetamol 500mg"
+- assertVisible: "1 Tablet sesudah makan"
+
+# Ambil screenshot bukti obat berhasil ditambahkan (CRUD Success)
+- takeScreenshot: screenshots/03_crud_success

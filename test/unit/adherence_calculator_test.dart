@@ -45,10 +45,10 @@ void main() {
     });
 
     test('getFeedbackLabel should return appropriate feedback string', () {
-      expect(AdherenceCalculator.getFeedbackLabel(95.0), equals('Excellent Adherence'));
-      expect(AdherenceCalculator.getFeedbackLabel(75.0), equals('Good Adherence'));
-      expect(AdherenceCalculator.getFeedbackLabel(55.0), equals('Needs Attention'));
-      expect(AdherenceCalculator.getFeedbackLabel(30.0), equals('Critical: Missed Doses'));
+      expect(AdherenceCalculator.getFeedbackLabel(95.0), equals('Kepatuhan Sangat Baik'));
+      expect(AdherenceCalculator.getFeedbackLabel(75.0), equals('Kepatuhan Baik'));
+      expect(AdherenceCalculator.getFeedbackLabel(55.0), equals('Perlu Perhatian'));
+      expect(AdherenceCalculator.getFeedbackLabel(30.0), equals('Kritis: Ada Obat Terlewat'));
     });
   });
 }

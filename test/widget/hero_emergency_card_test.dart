@@ -38,16 +38,15 @@ void main() {
         HeroEmergencyCard(profile: testProfile),
       ));
 
-      expect(find.text('curacard'), findsOneWidget);
-      expect(find.text('EMERGENCY PASS'), findsOneWidget);
+      expect(find.text('ID MEDIS DARURAT'), findsOneWidget);
       expect(find.text('Alex Rivera'), findsOneWidget);
       expect(find.text('O+'), findsOneWidget);
       expect(find.textContaining('Penicillin, Sulfa'), findsOneWidget);
-      expect(find.text('Call Contact'), findsOneWidget);
-      expect(find.text('Edit Pass'), findsOneWidget);
+      expect(find.text('Hubungi'), findsOneWidget);
+      expect(find.text('Edit ID'), findsOneWidget);
     });
 
-    testWidgets('triggers onEditPressed callback when Edit Pass is tapped', (tester) async {
+    testWidgets('triggers onEditPressed callback when Edit ID is tapped', (tester) async {
       bool editTapped = false;
 
       await tester.pumpWidget(buildTestableWidget(
@@ -57,7 +56,7 @@ void main() {
         ),
       ));
 
-      await tester.tap(find.text('Edit Pass'));
+      await tester.tap(find.text('Edit ID'));
       await tester.pumpAndSettle();
 
       expect(editTapped, isTrue);

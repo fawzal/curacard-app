@@ -1,0 +1,57 @@
+appId: com.curacard.curacard
+---
+# Flow 4: Validasi Kesalahan (Error Validation & Edge Cases)
+# Menguji penanganan kesalahan input form pada Auth Screen:
+# 1. Validasi format email tidak valid
+# 2. Validasi panjang kata sandi kurang dari 6 karakter
+# 3. Validasi field nama kosong pada form registrasi
+
+- launchApp:
+    clearState: true
+
+# Lewati onboarding jika muncul
+- runFlow:
+    when:
+      visible: "Lewati"
+    commands:
+      - tapOn: "Lewati"
+
+# Pastikan berada di form autentikasi
+- assertVisible: "Selamat Datang di CuraCard"
+
+# 1. Coba submit login langsung saat form kosong
+- tapOn:
+    text: "Masuk"
+    index: 1
+- assertVisible: "Email tidak valid"
+- takeScreenshot: screenshots/04_err_email_kosong
+
+# 2. Masukkan format email salah (tanpa @)
+- tapOn: "Alamat Email"
+- inputText: "invalid_email_format"
+- tapOn:
+    text: "Masuk"
+    index: 1
+- assertVisible: "Email tidak valid"
+- takeScreenshot: screenshots/04_err_email_format_salah
+
+# 3. Masukkan email valid, namun kata sandi kurang dari 6 karakter
+- tapOn: "Alamat Email"
+- eraseText
+- inputText: "user@curacard.com"
+- tapOn: "Kata Sandi"
+- inputText: "123"
+- tapOn:
+    text: "Masuk"
+    index: 1
+- assertVisible: "Minimal 6 karakter"
+- takeScreenshot: screenshots/04_err_password_pendek
+
+# 4. Pindah ke Tab Registrasi (Daftar)
+- tapOn: "Daftar"
+- assertVisible: "Buat Akun CuraCard"
+
+# 5. Coba buat akun tanpa mengisi Nama Lengkap
+- tapOn: "Buat Akun"
+- assertVisible: "Nama lengkap wajib diisi"
+- takeScreenshot: screenshots/04_err_register_nama_kosong

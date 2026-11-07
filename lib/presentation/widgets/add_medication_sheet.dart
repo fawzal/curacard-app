@@ -142,7 +142,7 @@ class _AddMedicationSheetState extends ConsumerState<AddMedicationSheet> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Tambah Resep Baru',
+                    'Tambah Jadwal Obat',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
