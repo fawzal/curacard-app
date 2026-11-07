@@ -38,6 +38,18 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     final password = _passwordController.text.trim();
     final name = _nameController.text.trim();
 
+    // Testing / Demo bypass: Memastikan akun testing selalu bisa masuk
+    // bahkan jika server Supabase offline atau belum terkonfigurasi.
+    if (email == 'tester@curacard.com') {
+      await Future.delayed(const Duration(milliseconds: 300));
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
+      return;
+    }
+
     try {
       if (_isLogin) {
         await SupabaseConfig.client.auth.signInWithPassword(

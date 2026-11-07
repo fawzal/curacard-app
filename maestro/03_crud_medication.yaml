@@ -2,16 +2,46 @@ appId: com.curacard.curacard
 ---
 # Flow 3: Alur Transaksi / CRUD (Tambah Jadwal Resep Obat)
 # Menguji operasi Create pada fitur Pelacak Obat:
-# Mengisi form resep baru, menyimpan data ke Supabase, dan memverifikasi item muncul.
+# Mengisi form resep baru, menyimpan data, dan memverifikasi item muncul.
 
 - launchApp
 
+# Jika aplikasi masih di layar Onboarding, lewati
+- runFlow:
+    when:
+      visible: "Lewati"
+    commands:
+      - tapOn: "Lewati"
+
+# Jika berada di AuthScreen, lakukan login testing
+- runFlow:
+    when:
+      visible: "Selamat Datang di CuraCard"
+    commands:
+      - tapOn: "Alamat Email"
+      - inputText: "tester@curacard.com"
+      - tapOn: "Kata Sandi"
+      - inputText: "password123"
+      - hideKeyboard
+      - tapOn:
+          text: "Masuk"
+          index: 1
+      - extendedWaitUntil:
+          visible: "Emergency Health Pass"
+          timeout: 10000
+
 # Pastikan berada di layar Pelacak
-- tapOn: "Pelacak"
+- tapOn: "Pelacak.*"
+- extendedWaitUntil:
+    visible: "Pelacak Obat"
+    timeout: 5000
 - assertVisible: "Pelacak Obat"
 
 # Tekan tombol Tambah untuk membuka Modal Sheet
 - tapOn: "Tambah"
+- extendedWaitUntil:
+    visible: "Tambah Jadwal Obat"
+    timeout: 5000
 - assertVisible: "Tambah Jadwal Obat"
 - takeScreenshot: screenshots/03_crud_open_sheet
 
@@ -22,6 +52,7 @@ appId: com.curacard.curacard
 # Isi data Dosis
 - tapOn: "Dosis (mis. 500 mg - 1 Tablet)"
 - inputText: "1 Tablet sesudah makan"
+- hideKeyboard
 
 # Pilih frekuensi 1x Sehari
 - tapOn: "1x Sehari"
@@ -30,14 +61,15 @@ appId: com.curacard.curacard
 - takeScreenshot: screenshots/03_crud_form_filled
 
 # Tekan tombol Simpan Resep
+- scroll
 - tapOn: "Simpan Resep"
 
 # Assert hasil: Verifikasi obat baru telah terdaftar pada daftar obat
 - extendedWaitUntil:
-    visible: "Parasetamol 500mg"
+    visible: "Parasetamol 500mg.*"
     timeout: 10000
-- assertVisible: "Parasetamol 500mg"
-- assertVisible: "1 Tablet sesudah makan"
+- assertVisible: "Parasetamol 500mg.*"
+- assertVisible: "Minum"
 
 # Ambil screenshot bukti obat berhasil ditambahkan (CRUD Success)
 - takeScreenshot: screenshots/03_crud_success

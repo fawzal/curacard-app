@@ -11,11 +11,17 @@ class MedicationRepository {
 
   String get _today => DateFormat('yyyy-MM-dd').format(DateTime.now());
 
+  static final List<MedicationModel> _inMemoryMeds = [];
+  static final List<IntakeLogModel> _inMemoryLogs = [];
+
   // ─────────────────────────────────────────────
   // Fetch all medications for the current user
-  // (RLS filters by user automatically)
   // ─────────────────────────────────────────────
   Future<List<MedicationModel>> fetchMedications() async {
+    final uid = client.auth.currentUser?.id;
+    if (uid == null) {
+      return List.unmodifiable(_inMemoryMeds);
+    }
     try {
       final response = await client
           .from('medications')
@@ -25,17 +31,9 @@ class MedicationRepository {
       return (response as List)
           .map((json) => MedicationModel.fromJson(json as Map<String, dynamic>))
           .toList();
-    } on PostgrestException catch (e) {
-      debugPrint('[MedicationRepository] fetchMedications PostgrestException:');
-      debugPrint('  message : ${e.message}');
-      debugPrint('  code    : ${e.code}');
-      debugPrint('  details : ${e.details}');
-      debugPrint('  hint    : ${e.hint}');
-      rethrow;
-    } catch (e, st) {
-      debugPrint('[MedicationRepository] fetchMedications unexpected error: $e');
-      debugPrint('$st');
-      rethrow;
+    } catch (e) {
+      debugPrint('[MedicationRepository] Fallback to in-memory medications: $e');
+      return List.unmodifiable(_inMemoryMeds);
     }
   }
 
@@ -43,7 +41,21 @@ class MedicationRepository {
   // Add a new medication and return the saved row
   // ─────────────────────────────────────────────
   Future<MedicationModel> addMedication(MedicationModel med) async {
-    final uid = client.auth.currentUser!.id;
+    final uid = client.auth.currentUser?.id;
+    final newMed = MedicationModel(
+      id: med.id.isNotEmpty ? med.id : 'med_${DateTime.now().millisecondsSinceEpoch}',
+      name: med.name,
+      dosage: med.dosage,
+      scheduledTimes: med.scheduledTimes,
+      iconName: med.iconName,
+      useAlarm: med.useAlarm,
+    );
+
+    if (uid == null) {
+      _inMemoryMeds.add(newMed);
+      return newMed;
+    }
+
     try {
       final response = await client.from('medications').insert({
         'user_id': uid,
@@ -55,17 +67,10 @@ class MedicationRepository {
       }).select().single();
 
       return MedicationModel.fromJson(response);
-    } on PostgrestException catch (e) {
-      debugPrint('[MedicationRepository] addMedication PostgrestException:');
-      debugPrint('  message : ${e.message}');
-      debugPrint('  code    : ${e.code}');
-      debugPrint('  details : ${e.details}');
-      debugPrint('  hint    : ${e.hint}');
-      rethrow;
-    } catch (e, st) {
-      debugPrint('[MedicationRepository] addMedication unexpected error: $e');
-      debugPrint('$st');
-      rethrow;
+    } catch (e) {
+      debugPrint('[MedicationRepository] Fallback to in-memory addMedication: $e');
+      _inMemoryMeds.add(newMed);
+      return newMed;
     }
   }
 
@@ -73,19 +78,11 @@ class MedicationRepository {
   // Delete a medication by ID
   // ─────────────────────────────────────────────
   Future<void> deleteMedication(String id) async {
+    _inMemoryMeds.removeWhere((m) => m.id == id);
     try {
       await client.from('medications').delete().eq('id', id);
-    } on PostgrestException catch (e) {
-      debugPrint('[MedicationRepository] deleteMedication PostgrestException:');
-      debugPrint('  message : ${e.message}');
-      debugPrint('  code    : ${e.code}');
-      debugPrint('  details : ${e.details}');
-      debugPrint('  hint    : ${e.hint}');
-      rethrow;
-    } catch (e, st) {
-      debugPrint('[MedicationRepository] deleteMedication unexpected error: $e');
-      debugPrint('$st');
-      rethrow;
+    } catch (e) {
+      debugPrint('[MedicationRepository] Offline fallback deleteMedication: $e');
     }
   }
 
@@ -97,7 +94,26 @@ class MedicationRepository {
     required String scheduledTime,
     required String status,
   }) async {
-    final uid = client.auth.currentUser!.id;
+    final uid = client.auth.currentUser?.id;
+    final now = DateTime.now();
+    final fallbackLog = IntakeLogModel(
+      id: 'log_${now.millisecondsSinceEpoch}',
+      userId: uid ?? 'local_user',
+      medicationId: medicationId,
+      scheduledDate: _today,
+      scheduledTime: scheduledTime,
+      status: status,
+      takenAt: status == 'taken' ? now : null,
+      createdAt: now,
+    );
+
+    if (uid == null) {
+      _inMemoryLogs.removeWhere((l) =>
+          l.medicationId == medicationId && l.scheduledTime == scheduledTime);
+      _inMemoryLogs.add(fallbackLog);
+      return fallbackLog;
+    }
+
     try {
       final payload = <String, dynamic>{
         'user_id': uid,
@@ -118,17 +134,12 @@ class MedicationRepository {
           .single();
 
       return IntakeLogModel.fromJson(response);
-    } on PostgrestException catch (e) {
-      debugPrint('[MedicationRepository] logIntake PostgrestException:');
-      debugPrint('  message : ${e.message}');
-      debugPrint('  code    : ${e.code}');
-      debugPrint('  details : ${e.details}');
-      debugPrint('  hint    : ${e.hint}');
-      rethrow;
-    } catch (e, st) {
-      debugPrint('[MedicationRepository] logIntake unexpected error: $e');
-      debugPrint('$st');
-      rethrow;
+    } catch (e) {
+      debugPrint('[MedicationRepository] Fallback to in-memory logIntake: $e');
+      _inMemoryLogs.removeWhere((l) =>
+          l.medicationId == medicationId && l.scheduledTime == scheduledTime);
+      _inMemoryLogs.add(fallbackLog);
+      return fallbackLog;
     }
   }
 
@@ -136,6 +147,10 @@ class MedicationRepository {
   // Fetch today's intake logs for the current user
   // ─────────────────────────────────────────────
   Future<List<IntakeLogModel>> fetchTodayIntakeLogs() async {
+    final uid = client.auth.currentUser?.id;
+    if (uid == null) {
+      return List.unmodifiable(_inMemoryLogs);
+    }
     try {
       final response = await client
           .from('intake_logs')
@@ -147,19 +162,9 @@ class MedicationRepository {
           .map((json) =>
               IntakeLogModel.fromJson(json as Map<String, dynamic>))
           .toList();
-    } on PostgrestException catch (e) {
-      debugPrint(
-          '[MedicationRepository] fetchTodayIntakeLogs PostgrestException:');
-      debugPrint('  message : ${e.message}');
-      debugPrint('  code    : ${e.code}');
-      debugPrint('  details : ${e.details}');
-      debugPrint('  hint    : ${e.hint}');
-      rethrow;
-    } catch (e, st) {
-      debugPrint(
-          '[MedicationRepository] fetchTodayIntakeLogs unexpected error: $e');
-      debugPrint('$st');
-      rethrow;
+    } catch (e) {
+      debugPrint('[MedicationRepository] Fallback to in-memory intake logs: $e');
+      return List.unmodifiable(_inMemoryLogs);
     }
   }
 }

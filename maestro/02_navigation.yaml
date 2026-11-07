@@ -22,30 +22,42 @@ appId: com.curacard.curacard
       - inputText: "tester@curacard.com"
       - tapOn: "Kata Sandi"
       - inputText: "password123"
+      - hideKeyboard
       - tapOn:
           text: "Masuk"
           index: 1
-      - extendedWaitUntil:
-          visible: "Emergency Health Pass"
-          timeout: 10000
+
+# Tunggu sampai Home Screen terbuka
+- extendedWaitUntil:
+    visible: "Emergency Health Pass"
+    timeout: 15000
 
 # 1. Verifikasi Halaman 1: ID Medis (Pass ID)
 - assertVisible: "Emergency Health Pass"
 - takeScreenshot: screenshots/02_nav_id_medis
 
 # 2. Navigasi ke Halaman 2: Pelacak Obat (Tracker)
-- tapOn: "Pelacak"
+- tapOn: "Pelacak.*"
+- extendedWaitUntil:
+    visible: "Pelacak Obat"
+    timeout: 5000
 - assertVisible: "Pelacak Obat"
 - assertVisible: "Catat kepatuhan minum obat harian"
 - assertVisible: "Tambah"
 - takeScreenshot: screenshots/02_nav_pelacak_obat
 
 # 3. Navigasi ke Halaman 3: Kontak Darurat
-- tapOn: "Kontak"
+- tapOn: "Kontak.*"
+- extendedWaitUntil:
+    visible: "Kontak Darurat"
+    timeout: 5000
 - assertVisible: "Kontak Darurat"
 - takeScreenshot: screenshots/02_nav_kontak_darurat
 
 # 4. Navigasi Kembali ke Halaman 1: ID Medis
-- tapOn: "ID Medis"
+- tapOn: "ID Medis.*"
+- extendedWaitUntil:
+    visible: "Emergency Health Pass"
+    timeout: 5000
 - assertVisible: "Emergency Health Pass"
 - takeScreenshot: screenshots/02_nav_kembali_id_medis

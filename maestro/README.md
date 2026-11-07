@@ -94,11 +94,12 @@ maestro test maestro/ --format junit --output test-results.xml
 
 ## 📸 Bukti Pengujian (Screenshots & Logs)
 Setiap alur flow di atas dilengkapi perintah `takeScreenshot` yang otomatis menyimpan tangkapan layar ke subfolder `maestro/screenshots/` sebagai bukti bahwa seluruh kriteria pengujian berhasil terverifikasi:
-- `01_app_launch_splash.png`
+- `01_app_launch_onboarding.png`
 - `01_auth_screen_ready.png`
 - `02_nav_id_medis.png`
 - `02_nav_pelacak_obat.png`
 - `02_nav_kontak_darurat.png`
+- `02_nav_kembali_id_medis.png`
 - `03_crud_open_sheet.png`
 - `03_crud_form_filled.png`
 - `03_crud_success.png`

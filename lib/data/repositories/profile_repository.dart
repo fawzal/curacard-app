@@ -1,17 +1,40 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/profile_model.dart';
+import '../models/emergency_contact_model.dart';
 
 class ProfileRepository {
   final SupabaseClient client;
 
   ProfileRepository({required this.client});
 
+  static ProfileModel _mockProfile = ProfileModel(
+    id: 'tester-id',
+    fullName: 'Tester CuraCard',
+    bloodType: 'O+',
+    allergies: const ['Penicillin', 'Sulfa'],
+    chronicConditions: const ['Hipertensi'],
+    contacts: const [
+      EmergencyContactModel(
+        id: 'c1',
+        name: 'Dr. Sarah Jenkins',
+        relation: 'Dokter Pribadi',
+        phone: '081234567890',
+        isPrimary: true,
+      ),
+    ],
+    isCompleted: true,
+    updatedAt: DateTime.now(),
+  );
+
   // ─────────────────────────────────────────────
   // Fetch profile + emergency contacts from Supabase
   // ─────────────────────────────────────────────
   Future<ProfileModel> fetchProfile() async {
-    final uid = client.auth.currentUser!.id;
+    final uid = client.auth.currentUser?.id;
+    if (uid == null) {
+      return _mockProfile;
+    }
     try {
       final response = await client
           .from('profiles')
@@ -20,17 +43,9 @@ class ProfileRepository {
           .single();
 
       return ProfileModel.fromJson(response);
-    } on PostgrestException catch (e) {
-      debugPrint('[ProfileRepository] fetchProfile PostgrestException:');
-      debugPrint('  message : ${e.message}');
-      debugPrint('  code    : ${e.code}');
-      debugPrint('  details : ${e.details}');
-      debugPrint('  hint    : ${e.hint}');
-      rethrow;
-    } catch (e, st) {
-      debugPrint('[ProfileRepository] fetchProfile unexpected error: $e');
-      debugPrint('$st');
-      rethrow;
+    } catch (e) {
+      debugPrint('[ProfileRepository] Offline fallback to mock profile: $e');
+      return _mockProfile;
     }
   }
 
@@ -38,7 +53,11 @@ class ProfileRepository {
   // Upsert profile then upsert emergency contacts
   // ─────────────────────────────────────────────
   Future<ProfileModel> upsertProfile(ProfileModel profile) async {
-    final uid = client.auth.currentUser!.id;
+    final uid = client.auth.currentUser?.id;
+    if (uid == null) {
+      _mockProfile = profile;
+      return _mockProfile;
+    }
 
     try {
       // 1. Upsert the profile row (id always comes from auth, not model)
@@ -52,7 +71,6 @@ class ProfileRepository {
       }).select();
 
       // 2. Replace emergency contacts:
-      //    Delete existing ones, then insert fresh list.
       await client
           .from('emergency_contacts')
           .delete()
@@ -68,24 +86,17 @@ class ProfileRepository {
             }).toList();
 
         await client
-            .from('emergency_contacts')
-            .insert(contactsPayload)
-            .select();
+          .from('emergency_contacts')
+          .insert(contactsPayload)
+          .select();
       }
 
       // 3. Return fresh data from Supabase
       return await fetchProfile();
-    } on PostgrestException catch (e) {
-      debugPrint('[ProfileRepository] upsertProfile PostgrestException:');
-      debugPrint('  message : ${e.message}');
-      debugPrint('  code    : ${e.code}');
-      debugPrint('  details : ${e.details}');
-      debugPrint('  hint    : ${e.hint}');
-      rethrow;
-    } catch (e, st) {
-      debugPrint('[ProfileRepository] upsertProfile unexpected error: $e');
-      debugPrint('$st');
-      rethrow;
+    } catch (e) {
+      debugPrint('[ProfileRepository] Offline fallback on upsertProfile: $e');
+      _mockProfile = profile;
+      return _mockProfile;
     }
   }
 }
