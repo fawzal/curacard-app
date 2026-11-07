@@ -50,5 +50,23 @@ if "%TARGET_FLOW%"=="" (
 
 echo.
 echo =======================================================
+echo   Mengumpulkan dan Menyinkronkan Bukti Screenshot...
+echo =======================================================
+
+if not exist "maestro\screenshots" mkdir "maestro\screenshots"
+
+powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+    "$testsDir = Join-Path $env:USERPROFILE '.maestro\tests';" ^
+    "if (Test-Path $testsDir) {" ^
+    "    $latestDir = (Get-ChildItem -Path $testsDir | Sort-Object LastWriteTime -Descending | Select-Object -First 1);" ^
+    "    if ($latestDir) {" ^
+    "        Get-ChildItem -Path $latestDir.FullName -Recurse -Filter '*.png' | ForEach-Object { Copy-Item $_.FullName 'maestro\screenshots\' -Force };" ^
+    "        Write-Host '[OK] Seluruh screenshot berhasil disalin ke: maestro\screenshots\';" ^
+    "    }" ^
+    "}"
+
+echo.
+echo =======================================================
 echo   Pengujian Maestro Selesai.
+echo   Seluruh screenshot dapat dilihat di: maestro\screenshots
 echo =======================================================
