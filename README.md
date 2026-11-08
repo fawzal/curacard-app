@@ -12,10 +12,7 @@
 
 | No | Nama Mahasiswa | NIM | Kelas | Peran dalam Proyek |
 |---|---|---|---|---|
-| 1 | [Nama Mahasiswa 1] | [NIM Mahasiswa 1] | TI23B | Project Lead, Mobile Developer, QA & Test Engineer (UAT & Maestro) |
-| 2 | [Nama Mahasiswa 2 / Opsional] | [NIM Mahasiswa 2] | TI23B | UI/UX Designer, Dokumentasi & Video Penjelasan |
-
-*(Silakan sesuaikan nama dan NIM di atas sesuai dengan kartu mahasiswa Anda)*
+| 1 | Fawwaz Gibran S. A. F | 230103021 | TI23B | Project Lead, UI/UX Designer, Mobile Developer, QA & Test Engineer (UAT & Maestro), Dokumentasi & Video Penjelasan |
 
 ---
 
