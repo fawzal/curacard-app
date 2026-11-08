@@ -24,7 +24,7 @@
 - 🎥 **Tautan Video Penjelasan (Durasi 5–10 Menit)**:  
   `[Tautan YouTube / Google Drive Video Penjelasan Anda]`
 - 🐙 **Tautan Repository Git (GitHub / GitLab)**:  
-  `https://github.com/username/curacard` *(atau tautan repositori Anda yang dapat diakses publik/dosen)*
+  `https://github.com/fawzal/curacard-app.git`
 - 📦 **File APK Aplikasi**:  
   Dapat di-generate melalui perintah `flutter build apk` (berlokasi di `build/app/outputs/flutter-apk/app-release.apk` atau `app-debug.apk`).
 
@@ -132,7 +132,7 @@ maestro test maestro/04_error_validation.yaml
 ### Langkah-langkah Menjalankan di Emulator / Perangkat:
 1. Clone repositori ke komputer lokal Anda:
    ```bash
-   git clone https://github.com/username/curacard.git
+   git clone https://github.com/fawzal/curacard-app.git
    cd curacard
    ```
 2. Pasang pustaka dan dependensi:
